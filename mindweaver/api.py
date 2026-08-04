@@ -3,7 +3,7 @@ import json
 import sys
 import asyncio
 from . import __version__
-from .deliberation import critique
+from .deliberation import critique, explore, plan
 from .models import DeliberationRequest
 
 
@@ -28,10 +28,11 @@ async def _handle_request(req: dict) -> dict:
     method = req.get("method")
     params = req.get("params", {})
 
-    if method == "critique":
+    if method in ("critique", "explore", "plan"):
         try:
             request = DeliberationRequest(**params)
-            result = await critique(request)
+            func = {"critique": critique, "explore": explore, "plan": plan}[method]
+            result = await func(request)
             return {"jsonrpc": "2.0", "id": req_id, "result": result.model_dump()}
         except Exception as exc:
             return {

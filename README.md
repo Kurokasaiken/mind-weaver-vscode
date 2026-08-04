@@ -8,9 +8,9 @@ Vibe coding is huge, but only 29% of developers trust AI-generated code. Mind We
 
 ## What it does
 
-- `> Mind Weaver: Validate with AI experts` — critique the current file with multiple AI models.
-- `> Mind Weaver: Explore idea` *(planned)* — explore a selected idea with structured multi-AI options.
-- `> Mind Weaver: Create plan` *(planned)* — turn a vague goal into concrete, verifiable tasks.
+- `> Mind Weaver: Discuss with AI experts` — critique the current file with multiple AI models.
+- `> Mind Weaver: Explore idea with AI experts` — explore a selected idea with structured multi-AI options.
+- `> Mind Weaver: Create plan with AI experts` — turn a vague goal into concrete, verifiable tasks.
 - **Apply professional hats** from the command palette to steer the AI (`system_design`, `ruthless_critique`, `software_engineer`, etc.).
 
 ## Install
