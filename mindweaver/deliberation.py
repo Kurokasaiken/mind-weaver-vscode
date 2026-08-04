@@ -31,12 +31,25 @@ Scomponi in step numerati. Per ogni step indica:
 Sii realista e sintetico."""
 
 
+HAT_INSTRUCTIONS = {
+    "ruthless_critique": "Adotta una prospettiva spietata: smonta ogni assunzione, evidenzia ogni debolezza e non cercare di compiacere.",
+    "system_design": "Adotta una prospettiva di system design: architettura, scalabilità, accoppiamenti, interfacce e vincoli.",
+    "software_engineer": "Adotta una prospettiva di ingegnere software: implementabilità, edge case, test, leggibilità e manutenibilità.",
+}
+
+
+def _apply_hat(base_prompt: str, hat: Optional[str]) -> str:
+    if not hat or hat not in HAT_INSTRUCTIONS:
+        return base_prompt
+    return base_prompt + "\n\n" + HAT_INSTRUCTIONS[hat]
+
+
 async def _run(request: DeliberationRequest, system_prompt: str) -> DeliberationResponse:
     """Run a multi-AI request with the given system prompt."""
     providers = request.providers or ["openai"]
 
     messages = [
-        Message(role="system", content=system_prompt),
+        Message(role="system", content=_apply_hat(system_prompt, request.hat)),
         Message(role="user", content=_build_user_prompt(request)),
     ]
 

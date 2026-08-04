@@ -4,9 +4,13 @@ import { critiqueFileCommand, exploreIdeaCommand, createPlanCommand } from './co
 
 let core: CoreBridge | undefined;
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
     core = new CoreBridge();
-    core.start();
+    try {
+        await core.start();
+    } catch (err) {
+        vscode.window.showWarningMessage(`Mind Weaver core did not start: ${err}`);
+    }
 
     context.subscriptions.push(
         vscode.commands.registerCommand('mindweaver.critiqueFile', () => critiqueFileCommand(core, context)),

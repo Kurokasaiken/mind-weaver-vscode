@@ -9,29 +9,62 @@ interface Pending {
 export class CoreBridge {
     private process: ChildProcess | undefined;
     private ready = false;
+    private failed = false;
+    private stderrBuffer = '';
     private pending = new Map<string, Pending>();
     private buffer = '';
 
-    start() {
+    async start(): Promise<void> {
         const python = vscode.workspace.getConfiguration('mindweaver').get<string>('pythonPath') || 'python3';
-        this.process = spawn(python, ['-m', 'mindweaver'], { stdio: ['pipe', 'pipe', 'pipe'] });
-        this.process.stderr?.on('data', (data) => {
-            console.error(`[mindweaver core] ${data.toString()}`);
+        return new Promise((resolve, reject) => {
+            this.process = spawn(python, ['-m', 'mindweaver'], { stdio: ['pipe', 'pipe', 'pipe'] });
+
+            const timeout = setTimeout(() => {
+                this.failed = true;
+                this.process?.kill();
+                reject(new Error(`Mind Weaver core did not start within 10s.\n${this._diagnosticMessage()}`));
+            }, 10000);
+
+            const onStartError = (err: Error) => {
+                clearTimeout(timeout);
+                this.failed = true;
+                reject(new Error(`Mind Weaver core failed to start: ${err.message}\n${this._diagnosticMessage()}`));
+            };
+
+            this.process.stderr?.on('data', (data) => {
+                const text = data.toString();
+                this.stderrBuffer += text;
+                console.error(`[mindweaver core] ${text}`);
+                if (text.includes('listening on stdio')) {
+                    clearTimeout(timeout);
+                    this.ready = true;
+                    resolve();
+                }
+            });
+
+            this.process.stdout?.on('data', (data) => {
+                this._onData(data.toString());
+            });
+
+            this.process.on('exit', (code) => {
+                if (!this.ready && !this.failed) {
+                    clearTimeout(timeout);
+                    this.failed = true;
+                    reject(new Error(`Mind Weaver core exited with code ${code}.\n${this._diagnosticMessage()}`));
+                }
+                console.log(`[mindweaver core] exited with ${code}`);
+                this.ready = false;
+                this._rejectAll(new Error('Core process exited'));
+            });
+
+            this.process.on('error', (err) => {
+                if (!this.ready && !this.failed) {
+                    clearTimeout(timeout);
+                    this.failed = true;
+                    onStartError(err);
+                }
+            });
         });
-        this.process.stdout?.on('data', (data) => {
-            this._onData(data.toString());
-        });
-        this.process.on('exit', (code) => {
-            console.log(`[mindweaver core] exited with ${code}`);
-            this.ready = false;
-            this._rejectAll(new Error('Core process exited'));
-        });
-        this.process.on('error', (err) => {
-            console.error(`[mindweaver core] error ${err}`);
-            this.ready = false;
-            this._rejectAll(err);
-        });
-        this.ready = true;
     }
 
     stop() {
@@ -39,6 +72,11 @@ export class CoreBridge {
             this.process.kill();
         }
         this._rejectAll(new Error('Core stopped'));
+    }
+
+    private _diagnosticMessage(): string {
+        const hint = this.stderrBuffer.trim() || 'no output';
+        return `Diagnosi: ${hint}\n\nCose da controllare:\n- \"pip install mindweaver-core\"\n- il Python in \"mindweaver.pythonPath\" punti al giusto interpreter\n- il file \"~/.config/mindweaver/config.yaml\" esista con le API key`;
     }
 
     private _onData(chunk: string) {
@@ -72,8 +110,8 @@ export class CoreBridge {
     }
 
     async call(method: string, params: unknown): Promise<unknown> {
-        if (!this.process || !this.ready) {
-            throw new Error('Core not ready');
+        if (!this.process || !this.ready || this.failed) {
+            throw new Error(`Core not ready.\n${this._diagnosticMessage()}`);
         }
         const id = Math.random().toString(36).slice(2);
         const payload = JSON.stringify({ jsonrpc: '2.0', id, method, params });

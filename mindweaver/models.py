@@ -12,6 +12,7 @@ class DeliberationRequest(BaseModel):
     file_path: Optional[str] = None
     file_content: Optional[str] = None
     providers: Optional[List[str]] = None
+    hat: Optional[str] = None
     n_rounds: int = 1
 
 
