@@ -1,6 +1,6 @@
 # Mind Weaver — Landing
 
-> **an AI team of experts at your wish**
+> **an AI team of experts at your command**
 
 ## The problem
 
@@ -35,4 +35,4 @@ No web automation. No lock-in. Your keys, your data.
 
 ## Support
 
-If Mind Weaver saves you from a bad commit, consider supporting it on [GitHub Sponsors](https://github.com/sponsors/faustoboni) or [Polar](https://polar.sh/faustoboni).
+If Mind Weaver saves you from a bad commit, consider supporting it on [GitHub Sponsors](https://github.com/sponsors/Kurokasaiken) or [Polar](https://polar.sh/faustoboni).

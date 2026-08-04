@@ -1,4 +1,4 @@
-# Mind Weaver — an AI team of experts at your wish
+# Mind Weaver — an AI team of experts at your command
 
 A VS Code extension that turns your AI models into a deliberative team. Explore ideas, create plans, and validate with multiple AI experts — before the first line of code.
 
@@ -84,7 +84,7 @@ Open any file, run `> Mind Weaver: Validate with AI experts` from the command pa
 
 If Mind Weaver saves you from a bad commit, consider supporting it:
 
-- [Sponsor on GitHub](https://github.com/sponsors/faustoboni)
+- [Sponsor on GitHub](https://github.com/sponsors/Kurokasaiken)
 - [Sponsor on Polar](https://polar.sh/faustoboni)
 
 ## License
