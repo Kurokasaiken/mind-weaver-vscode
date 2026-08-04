@@ -1,0 +1,62 @@
+{
+  "name": "mind-weaver",
+  "displayName": "Mind Weaver",
+  "description": "Mind Weaver — an AI team of experts at your wish. Validate before you code.",
+  "version": "0.1.0",
+  "publisher": "kurokasaiken",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kurokasaiken/mind-weaver-vscode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Kurokasaiken/mind-weaver-vscode/issues"
+  },
+  "homepage": "https://github.com/Kurokasaiken/mind-weaver-vscode",
+  "keywords": [
+    "vibe coding",
+    "multi ai",
+    "critique",
+    "deliberation",
+    "ai governance"
+  ],
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:mindweaver.critiqueFile"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "mindweaver.critiqueFile",
+        "title": "Validate with AI experts",
+        "category": "Mind Weaver"
+      }
+    ],
+    "configuration": {
+      "title": "Mind Weaver",
+      "properties": {
+        "mindweaver.pythonPath": {
+          "type": "string",
+          "default": "python3",
+          "description": "Path to the Python interpreter used to run the Mind Weaver core."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.90.0",
+    "typescript": "^5.4.0",
+    "@vscode/vsce": "^3.0.0"
+  }
+}

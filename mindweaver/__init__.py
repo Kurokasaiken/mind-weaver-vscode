@@ -1,0 +1,2 @@
+"""Mind Weaver core for the open source plugin."""
+__version__ = "0.1.0"
