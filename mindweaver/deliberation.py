@@ -3,46 +3,7 @@ import asyncio
 from .models import DeliberationRequest, DeliberationResponse, Message
 from .providers import chat, ProviderError
 from .config import Config
-
-
-CRITIQUE_PROMPT = """Sei un ingegnere senior. Il tuo compito è criticare il contenuto fornito, evidenziare:
-- assunzioni nascoste o non dichiarate
-- omissioni o rischi
-- contraddizioni interne
-- problemi di manutenibilità, sicurezza o prestazioni
-
-Sii conciso ma costruttivo."""
-
-EXPLORE_PROMPT = """Sei un consulente senior. Esplora l'idea fornita da più angolazioni.
-Restituisci:
-- opzioni concrete
-- pro e contro di ogni opzione
-- rischi principali
-- raccomandazione finale
-
-Sii conciso e utile."""
-
-PLAN_PROMPT = """Sei un product manager senior. Crea un piano verificabile e concreto per il goal fornito.
-Scomponi in step numerati. Per ogni step indica:
-- descrizione
-- criterio di successo
-- strumenti/risorse necessari
-- dipendenze
-
-Sii realista e sintetico."""
-
-
-HAT_INSTRUCTIONS = {
-    "ruthless_critique": "Adotta una prospettiva spietata: smonta ogni assunzione, evidenzia ogni debolezza e non cercare di compiacere.",
-    "system_design": "Adotta una prospettiva di system design: architettura, scalabilità, accoppiamenti, interfacce e vincoli.",
-    "software_engineer": "Adotta una prospettiva di ingegnere software: implementabilità, edge case, test, leggibilità e manutenibilità.",
-}
-
-
-def _apply_hat(base_prompt: str, hat: Optional[str]) -> str:
-    if not hat or hat not in HAT_INSTRUCTIONS:
-        return base_prompt
-    return base_prompt + "\n\n" + HAT_INSTRUCTIONS[hat]
+from .prompt_enhancers import BASE_PROMPTS, apply_hat, auto_hat
 
 
 def _configured_providers() -> list[str]:
@@ -52,12 +13,16 @@ def _configured_providers() -> list[str]:
     return names if names else ["openai"]
 
 
-async def _run(request: DeliberationRequest, system_prompt: str) -> DeliberationResponse:
-    """Run a multi-AI request with the given system prompt."""
+async def _run(request: DeliberationRequest, method: str) -> DeliberationResponse:
+    """Run a multi-AI request with the base enhancer for the method and chosen hat."""
     providers = request.providers or _configured_providers()
+    base_prompt = BASE_PROMPTS.get(method, BASE_PROMPTS["explore"])
+
+    hat = request.hat or auto_hat(request.prompt + "\n" + (request.file_content or ""))
+    system_prompt = apply_hat(base_prompt, hat)
 
     messages = [
-        Message(role="system", content=_apply_hat(system_prompt, request.hat)),
+        Message(role="system", content=system_prompt),
         Message(role="user", content=_build_user_prompt(request)),
     ]
 
@@ -84,18 +49,18 @@ async def _run(request: DeliberationRequest, system_prompt: str) -> Deliberation
 
 
 async def critique(request: DeliberationRequest) -> DeliberationResponse:
-    """Run multi-AI critique on a file."""
-    return await _run(request, CRITIQUE_PROMPT)
+    """Run multi-AI critique on a file or selection."""
+    return await _run(request, "critique")
 
 
 async def explore(request: DeliberationRequest) -> DeliberationResponse:
     """Run multi-AI exploration of an idea."""
-    return await _run(request, EXPLORE_PROMPT)
+    return await _run(request, "explore")
 
 
 async def plan(request: DeliberationRequest) -> DeliberationResponse:
     """Run multi-AI plan generation for a goal."""
-    return await _run(request, PLAN_PROMPT)
+    return await _run(request, "plan")
 
 
 def _build_user_prompt(request: DeliberationRequest) -> str:

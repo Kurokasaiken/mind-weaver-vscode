@@ -5,10 +5,13 @@ import { CoreBridge } from './coreBridge';
 import { renderPanel } from './panel';
 
 const HATS = [
-    { label: 'General', detail: 'Default balanced perspective', value: undefined },
+    { label: 'Auto', detail: 'Pick automatically from keywords', value: undefined },
     { label: 'Ruthless critique', detail: 'Tear apart every assumption', value: 'ruthless_critique' },
     { label: 'System design', detail: 'Architecture, scalability, coupling', value: 'system_design' },
     { label: 'Software engineer', detail: 'Implementation, edge cases, tests', value: 'software_engineer' },
+    { label: 'UI developer', detail: 'UI/UX, components, accessibility', value: 'ui_developer' },
+    { label: 'Cloud architect', detail: 'Cloud, deploy, infrastructure', value: 'cloud_architect' },
+    { label: 'Objective critic', detail: 'Neutral, disconfirming evidence', value: 'objective_critic' },
 ];
 
 function getContext(editor: vscode.TextEditor | undefined) {

@@ -2,7 +2,7 @@
   "name": "mind-weaver",
   "displayName": "Mind Weaver",
   "description": "Mind Weaver — an AI team of experts at your command. Validate before you code.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "kurokasaiken",
   "repository": {
     "type": "git",
