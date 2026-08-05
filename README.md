@@ -1,92 +1,132 @@
-# Mind Weaver — an AI team of experts at your command
+# Mind Weaver
 
-A VS Code extension that turns your AI models into a deliberative team. Explore ideas, create plans, and validate with multiple AI experts — before the first line of code.
+> **An AI team of experts at your command.**
+>
+> Think before you code. Validate, explore, and plan with multiple AI models inside VS Code.
 
-## Why
+## Why Mind Weaver
 
-Vibe coding is huge, but only 29% of developers trust AI-generated code. Mind Weaver does not write code for you. It helps you think before the AI writes, so your vibes become durable decisions.
+Most AI coding tools write code for you. Mind Weaver is the opposite: it helps you **think before you write**. It runs the same question through several AI providers and shows you a structured, multi-perspective answer.
 
-## What it does
+Use it when:
+- you are not sure if your idea is good
+- you want to see hidden risks before coding
+- you need a concrete plan for a vague goal
+- you want a sparring partner, not a ghostwriter
 
-- `> Mind Weaver: Discuss with AI experts` — critique the current file with multiple AI models.
-- `> Mind Weaver: Explore idea with AI experts` — explore a selected idea with structured multi-AI options.
-- `> Mind Weaver: Create plan with AI experts` — turn a vague goal into concrete, verifiable tasks.
-- **Apply professional hats** from the command palette to steer the AI (`system_design`, `ruthless_critique`, `software_engineer`, etc.).
+## What makes it different
+
+- **Multi-AI by default**: the same prompt goes to OpenAI, Groq, Anthropic, OpenRouter — or any mix you configure.
+- **Professional hats**: ask the AI team to wear a hat (ruthless critic, system designer, software engineer).
+- **Selection-aware**: select a piece of code and it deliberates on that. No selection = whole file.
+- **Private**: your code and keys stay on your machine.
 
 ## Install
 
-### From marketplace
-
-Install from the [VS Code Marketplace](#) or [Open VSX](#) (coming soon).
-
-### From source
-
-```bash
-git clone https://github.com/Kurokasaiken/mind-weaver-vscode.git
-cd mind-weaver-vscode
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
-cd vscode
-npm install
-npm run compile
-```
-
-### From PyPI
-
-`mindweaver-core` is now available on PyPI:
+### 1. Install the Python core
 
 ```bash
 pip install mindweaver-core
 ```
 
-Then install the extension from the VS Code Marketplace or from the `.vsix`:
+### 2. Install the VS Code extension
+
+From the Marketplace:
 
 ```bash
-code --install-extension vscode/mind-weaver-0.1.0.vsix
+ext install kurokasaiken.mind-weaver
 ```
 
-## Configuration
+Or download the `.vsix` from GitHub Releases and run:
 
-Create `~/.config/mindweaver/config.yaml` with your API keys:
+```bash
+code --install-extension mind-weaver-0.2.0.vsix
+```
+
+## Configure
+
+Open the command palette in VS Code (`Cmd+Shift+P` or `Ctrl+Shift+P`) and run:
+
+```
+> Mind Weaver: Open Mind Weaver config
+```
+
+This creates `~/.config/mindweaver/config.yaml` if it does not exist. Fill in at least one API key. For the best experience, add **at least two providers**.
+
+### Recommended providers right now
+
+| provider | model | why |
+|---|---|---|
+| `openai` | `gpt-4o-mini` | cheap, good at reasoning |
+| `groq` | `llama-3.3-70b-versatile` | very fast, very cheap, good for critique |
+
+### Where to get keys
+
+- OpenAI: https://platform.openai.com/api-keys
+- Groq: https://console.groq.com/keys
+- Anthropic: https://console.anthropic.com/settings/keys
+- OpenRouter: https://openrouter.ai/keys
+
+### Example config
 
 ```yaml
 providers:
   openai:
     api_key: sk-...
     model: gpt-4o-mini
-  anthropic:
-    api_key: sk-ant-...
-    model: claude-3-5-sonnet-20241022
   groq:
     api_key: gsk_...
     model: llama-3.3-70b-versatile
 ```
 
-Or set environment variables:
+## How to use
 
-- `OPENAI_API_KEY`
-- `ANTHROPIC_API_KEY`
-- `GROQ_API_KEY`
-- `OPENROUTER_API_KEY`
+1. Open or select code in VS Code.
+2. Open the command palette.
+3. Choose one of the Mind Weaver commands.
 
-## Usage
+### Commands
 
-Open any file, run `> Mind Weaver: Validate with AI experts` from the command palette. The extension sends the file content to the Mind Weaver core, which queries the configured providers and shows a side-by-side critique.
+| command | what it does |
+|---|---|
+| `Mind Weaver: Discuss with AI experts` | Critique the selected code or the whole file with multiple AIs. |
+| `Mind Weaver: Explore idea with AI experts` | Type an idea and get options, risks, and a recommendation. |
+| `Mind Weaver: Create plan with AI experts` | Type a goal and get a concrete, step-by-step plan. |
+| `Mind Weaver: Open Mind Weaver config` | Open your `~/.config/mindweaver/config.yaml`. |
+| `Mind Weaver: Show tutorial` | Open the welcome tutorial again. |
 
-## Architecture
+### Professional hats
 
-- `mindweaver/`: Python core that runs multi-AI deliberation and exposes a JSON-RPC API.
-- `vscode/`: thin TypeScript extension that calls the core and renders results.
-- `cli/`: `mw-critique` and future commands for terminal, Claude Code and Codex.
+After you run a command, you can choose a hat that shapes the AI perspective:
+
+- **General** — balanced default
+- **Ruthless critique** — finds every weakness
+- **System design** — architecture, coupling, scalability
+- **Software engineer** — implementation, edge cases, tests
+
+## Troubleshooting
+
+### "Core not ready"
+
+This means the Python core did not start. Check:
+
+1. `pip install mindweaver-core` succeeded.
+2. The Python used by VS Code has `mindweaver-core` installed (check `mindweaver.pythonPath` in VS Code settings).
+3. `~/.config/mindweaver/config.yaml` exists and has at least one valid API key.
+
+Run `> Mind Weaver: Open Mind Weaver config` to create or edit the config file.
+
+### "Provider returned an error"
+
+Check that the API key is correct and that the model name is spelled exactly as shown in the provider docs.
 
 ## Support
 
-If Mind Weaver saves you from a bad commit, consider supporting it:
+If you find Mind Weaver useful, consider supporting the project:
 
-- [Sponsor on GitHub](https://github.com/sponsors/Kurokasaiken)
-- [Sponsor on Polar](https://polar.sh/faustoboni)
+- [GitHub Sponsors](https://github.com/sponsors/Kurokasaiken)
+- [Polar](https://polar.sh/Kurokasaiken)
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).

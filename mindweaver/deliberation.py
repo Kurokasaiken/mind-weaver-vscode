@@ -2,6 +2,7 @@
 import asyncio
 from .models import DeliberationRequest, DeliberationResponse, Message
 from .providers import chat, ProviderError
+from .config import Config
 
 
 CRITIQUE_PROMPT = """Sei un ingegnere senior. Il tuo compito è criticare il contenuto fornito, evidenziare:
@@ -44,9 +45,16 @@ def _apply_hat(base_prompt: str, hat: Optional[str]) -> str:
     return base_prompt + "\n\n" + HAT_INSTRUCTIONS[hat]
 
 
+def _configured_providers() -> list[str]:
+    """Return list of provider names from config, or default to openai."""
+    cfg = Config()
+    names = list(cfg.providers().keys())
+    return names if names else ["openai"]
+
+
 async def _run(request: DeliberationRequest, system_prompt: str) -> DeliberationResponse:
     """Run a multi-AI request with the given system prompt."""
-    providers = request.providers or ["openai"]
+    providers = request.providers or _configured_providers()
 
     messages = [
         Message(role="system", content=_apply_hat(system_prompt, request.hat)),
@@ -93,7 +101,8 @@ async def plan(request: DeliberationRequest) -> DeliberationResponse:
 def _build_user_prompt(request: DeliberationRequest) -> str:
     parts = [f"Richiesta: {request.prompt}"]
     if request.file_path:
-        parts.append(f"File: {request.file_path}")
+        scope = "Selezione" if request.is_selection else "File"
+        parts.append(f"{scope}: {request.file_path}")
     if request.file_content:
         parts.append("---\n" + request.file_content)
     return "\n\n".join(parts)

@@ -11,6 +11,7 @@ class DeliberationRequest(BaseModel):
     prompt: str
     file_path: Optional[str] = None
     file_content: Optional[str] = None
+    is_selection: bool = False
     providers: Optional[List[str]] = None
     hat: Optional[str] = None
     n_rounds: int = 1

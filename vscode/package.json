@@ -2,7 +2,7 @@
   "name": "mind-weaver",
   "displayName": "Mind Weaver",
   "description": "Mind Weaver — an AI team of experts at your command. Validate before you code.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "kurokasaiken",
   "repository": {
     "type": "git",
@@ -28,7 +28,9 @@
   "activationEvents": [
     "onCommand:mindweaver.critiqueFile",
     "onCommand:mindweaver.exploreIdea",
-    "onCommand:mindweaver.createPlan"
+    "onCommand:mindweaver.createPlan",
+    "onCommand:mindweaver.openConfig",
+    "onCommand:mindweaver.showTutorial"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -46,6 +48,16 @@
       {
         "command": "mindweaver.createPlan",
         "title": "Create plan with AI experts",
+        "category": "Mind Weaver"
+      },
+      {
+        "command": "mindweaver.openConfig",
+        "title": "Open Mind Weaver config",
+        "category": "Mind Weaver"
+      },
+      {
+        "command": "mindweaver.showTutorial",
+        "title": "Show tutorial",
         "category": "Mind Weaver"
       }
     ],
