@@ -1,5 +1,9 @@
-import { ChildProcess, spawn } from 'child_process';
+import { ChildProcess, spawn, exec } from 'child_process';
 import * as vscode from 'vscode';
+import * as util from 'util';
+
+const execAsync = util.promisify(exec);
+const EXPECTED_VERSION = '0.2.3';
 
 interface Pending {
     resolve: (value: unknown) => void;
@@ -14,8 +18,67 @@ export class CoreBridge {
     private pending = new Map<string, Pending>();
     private buffer = '';
 
+    static expectedVersion(): string {
+        return EXPECTED_VERSION;
+    }
+
+    static installCommand(python: string): string {
+        return `${python} -m pip install --upgrade mindweaver-core==${EXPECTED_VERSION}`;
+    }
+
+    static whlInstallCommand(python: string, whlPath: string): string {
+        return `${python} -m pip install --force-reinstall ${whlPath}`;
+    }
+
+    static async resolvePython(): Promise<string> {
+        const configured = vscode.workspace.getConfiguration('mindweaver').get<string>('pythonPath');
+        if (configured) {
+            return configured;
+        }
+
+        const candidates = process.platform === 'win32'
+            ? ['python', 'python3', 'py']
+            : ['python3', 'python', 'python3.11', 'python3.12', 'python3.13'];
+
+        for (const candidate of candidates) {
+            try {
+                await execAsync(`"${candidate}" --version`);
+                return candidate;
+            } catch {
+                // try next
+            }
+        }
+        throw new Error(`No Python 3.10+ interpreter found. Install Python and add it to PATH, then set "mindweaver.pythonPath" in VS Code settings.`);
+    }
+
+    static async checkVersion(python: string): Promise<string | undefined> {
+        try {
+            const { stdout } = await execAsync(`"${python}" -c "import mindweaver; print(mindweaver.__version__)"`);
+            return stdout.trim();
+        } catch {
+            return undefined;
+        }
+    }
+
     async start(): Promise<void> {
-        const python = vscode.workspace.getConfiguration('mindweaver').get<string>('pythonPath') || 'python3';
+        const python = await CoreBridge.resolvePython();
+        const version = await CoreBridge.checkVersion(python);
+
+        if (!version) {
+            throw new Error(
+                `mindweaver-core is not installed for the Python interpreter "${python}".\n\n` +
+                `Run this in a terminal:\n${CoreBridge.installCommand(python)}\n\n` +
+                `Or, if you have the .whl file:\n${CoreBridge.whlInstallCommand(python, 'mindweaver_core-0.2.3-py3-none-any.whl')}`
+            );
+        }
+
+        if (version !== EXPECTED_VERSION) {
+            throw new Error(
+                `mindweaver-core version mismatch: found ${version}, expected ${EXPECTED_VERSION}.\n\n` +
+                `Run this in a terminal:\n${CoreBridge.installCommand(python)}`
+            );
+        }
+
         return new Promise((resolve, reject) => {
             this.process = spawn(python, ['-m', 'mindweaver'], { stdio: ['pipe', 'pipe', 'pipe'] });
 
@@ -76,7 +139,7 @@ export class CoreBridge {
 
     private _diagnosticMessage(): string {
         const hint = this.stderrBuffer.trim() || 'no output';
-        return `Diagnosi: ${hint}\n\nCose da controllare:\n- \"pip install mindweaver-core\"\n- il Python in \"mindweaver.pythonPath\" punti al giusto interpreter\n- il file \"~/.config/mindweaver/config.yaml\" esista con le API key`;
+        return `Diagnosi: ${hint}\n\nCose da controllare:\n- "pip install mindweaver-core==${EXPECTED_VERSION}"\n- il Python in "mindweaver.pythonPath" punti al giusto interpreter\n- il file "~/.config/mindweaver/config.yaml" esista con le API key`;
     }
 
     private _onData(chunk: string) {
@@ -84,7 +147,7 @@ export class CoreBridge {
         const lines = this.buffer.split('\n');
         this.buffer = lines.pop() || '';
         for (const line of lines) {
-            if (!line.trim()) continue;
+            if (!line.trim()) { continue; }
             try {
                 const res = JSON.parse(line);
                 if (res.id && this.pending.has(res.id)) {

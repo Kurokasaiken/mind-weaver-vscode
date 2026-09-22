@@ -1,6 +1,6 @@
 [project]
 name = "mindweaver-core"
-version = "0.2.2"
+version = "0.2.3"
 description = "Core Python per il plugin Mind Weaver"
 requires-python = ">=3.10"
 dependencies = [

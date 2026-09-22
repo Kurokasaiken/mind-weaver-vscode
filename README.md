@@ -26,7 +26,13 @@ Use it when:
 ### 1. Install the Python core
 
 ```bash
-pip install mindweaver-core
+pip install mindweaver-core==0.2.3
+```
+
+If you have the `.whl` file locally:
+
+```bash
+pip install mindweaver_core-0.2.3-py3-none-any.whl
 ```
 
 ### 2. Install the VS Code extension
@@ -40,7 +46,7 @@ ext install kurokasaiken.mind-weaver
 Or download the `.vsix` from GitHub Releases and run:
 
 ```bash
-code --install-extension mind-weaver-0.2.0.vsix
+code --install-extension mind-weaver-0.2.3.vsix
 ```
 
 ## Configure
@@ -106,11 +112,13 @@ After you run a command, you can choose a hat that shapes the AI perspective:
 
 ## Troubleshooting
 
-### "Core not ready"
+### "Core not ready" or setup panel
 
-This means the Python core did not start. Check:
+This means the Python core did not start or is the wrong version. The extension will open a setup guide automatically. If it does not, run `> Mind Weaver: Open setup guide`.
 
-1. `pip install mindweaver-core` succeeded.
+Check:
+
+1. `pip install mindweaver-core==0.2.3` succeeded (the `.vsix` and core versions must match).
 2. The Python used by VS Code has `mindweaver-core` installed (check `mindweaver.pythonPath` in VS Code settings).
 3. `~/.config/mindweaver/config.yaml` exists and has at least one valid API key.
 
